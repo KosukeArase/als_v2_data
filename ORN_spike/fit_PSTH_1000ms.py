@@ -136,7 +136,7 @@ if __name__ == "__main__":
             time_spontaneous = np.c_[time_spontaneous, matrix[:,:start]]
             time_rising = np.c_[time_rising, matrix[:,start:stop]]
             # print file
-            # print matrix[:,start:stop]
+            # print matrix[:,start:stop][0]
             time_falling = np.c_[time_falling, matrix[:,stop-1:]]
             PSTH_spontaneous = np.hstack((PSTH_spontaneous, PSTH[:start]))
             PSTH_rising = np.hstack((PSTH_rising, PSTH[start:stop]))
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     draw_fitted_curve(5000)
     draw_fitted_curve(1000)
 
-    plt.title("{0} ms".format(200))
+    plt.title("{0} ms".format(1000))
     plt.xlabel("time")
     plt.ylabel("PSTH")
     plt.legend()
