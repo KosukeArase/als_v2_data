@@ -57,6 +57,10 @@ if __name__ == "__main__":
 
     suffix = "_adjusted_spt.txt"
     target_dir = "../../parsed_data/Park_200ms/"
+    
+    old_file = os.listdir(target_dir)
+    for file in old_file:
+        os.remove(target_dir + file)
 
     with open("datalist.csv", "r") as datalist:
         input_list = datalist.readlines()

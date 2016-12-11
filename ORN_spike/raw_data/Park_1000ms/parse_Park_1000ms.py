@@ -59,6 +59,10 @@ if __name__ == "__main__":
     # suffix = "_adjusted_spt.txt"
     target_dir = "../../parsed_data/Park_1000ms/"
 
+    old_file = os.listdir(target_dir)
+    for file in old_file:
+        os.remove(target_dir + file)
+
     input_list = glob.glob("*.dat")
     print input_list
     for input_file in input_list:
