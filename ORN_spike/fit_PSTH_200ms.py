@@ -53,7 +53,6 @@ def read_data(path):
 
 def save_parameters():
     output_file = "parameters_{0}ms.txt".format(int(duration*1000))
-    f_sp, tau_rise, epsilon, alpha, K, delay, tau_fall
     with open(output_file, "w") as f:
         f.write("[{0}ms]\n".format(int(duration*1000)))
         f.write("f_sp = {0}\ntau_rise = {1}\nepsilon = {2}\nalpha = {3}\nK = {4}\ndelay = {5}\ntau_fall = {6}".format(f_sp, tau_rise, epsilon, alpha, K, delay, tau_fall))

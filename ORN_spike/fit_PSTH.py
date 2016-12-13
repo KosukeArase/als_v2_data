@@ -55,7 +55,7 @@ def save_parameters():
     output_file = "parameters_{0}ms.txt".format(int(duration*1000))
     with open(output_file, "w") as f:
         f.write("[{0}ms]\n".format(int(duration*1000)))
-        f.write("f_sp = {0}\ntau_rise = {1}\nepsilon = {2}\nalpha = {3}\nK = {4}\ndelay = {5}\ntau_fall = {6}\nbeta = {7}".format(f_sp, tau_rise, epsilon, alpha, K, delay, tau_fall, beta))
+        f.write("f_sp = {0}\ntau_rise = {1}\nalpha = {2}\nK = {3}\ndelay = {4}\ntau_fall = {5}\nmu = {6}".format(f_sp, tau_rise, alpha, K, delay, tau_fall, mu))
 
 
 def draw_fitted_curve(dose):
@@ -63,7 +63,7 @@ def draw_fitted_curve(dose):
     time_falling_200[1,:] = dose * np.ones(right - (int(duration/bin)+1))
  
     f_before = f_sp * np.ones(len(time_before_200[0]))
-    f_rise = rising_spike(time_rising_200, tau_rise, epsilon, alpha, K, delay, beta)
+    f_rise = rising_spike(time_rising_200, tau_rise, alpha, K, delay, mu)
     f_fall = falling_spike(time_falling_200, tau_fall)
     f_connected = np.hstack((f_before, f_rise, f_fall))
 
@@ -74,17 +74,21 @@ def spontaneous(t, f_sp):
     return f_sp
 
 
-def adaptation(t, epsilon, beta):
-    return 1 - epsilon * (t - beta)
+# def adaptation(t, epsilon, beta):
+#     return 1 - epsilon * (t - beta)
 
 
 def Michaelis_Menten(c, alpha, K):
     return alpha / (1 + K/c)
 
 
-def rising_spike(data, tau_rise, epsilon, alpha, K, delay, beta):
-    f_pe = adaptation(data[0], epsilon, beta) * Michaelis_Menten(data[1], alpha, K)
-    return f_sp + f_pe * (1-np.exp(-(data[0]-delay)/tau_rise))
+# def rising_spike(data, tau_rise, epsilon, alpha, K, delay, beta):
+#     f_pe = adaptation(data[0], epsilon, beta) * Michaelis_Menten(data[1], alpha, K)
+#     return f_sp + f_pe * (1-np.exp(-(data[0]-delay)/tau_rise))
+
+def rising_spike(data, tau_rise, alpha, K, delay, mu):
+    f_pe = Michaelis_Menten(data[1], alpha, K)
+    return f_sp + f_pe * ((1-mu)*np.exp(-(data[0]-delay)/tau_rise) + mu)
 
 
 # def falling_spike(data, f_max, tau_fall):
@@ -107,17 +111,17 @@ def optimize_parameters():
     parameter_optimal ,covariance = curve_fit(rising_spike, time_rising, PSTH_rising)
     global tau_rise
     global delay
-    tau_rise, epsilon, alpha, K, delay, beta = parameter_optimal
+    tau_rise, alpha, K, delay, mu = parameter_optimal
 
     global fmax
-    fmax = rising_spike(time_falling[:,0], tau_rise, epsilon, alpha, K, delay, beta)
+    fmax = rising_spike(time_falling[:,0], tau_rise, alpha, K, delay, mu)
     # f_max = 0
 
     # parameter_initial = np.array([50, tau_rise]) #f_max, tau_fall
     parameter_optimal ,covariance = curve_fit(falling_spike, time_falling, PSTH_falling)
     tau_fall = parameter_optimal[0]
 
-    return f_sp, tau_rise, epsilon, alpha, K, delay, tau_fall, beta
+    return f_sp, tau_rise, alpha, K, delay, tau_fall, mu
 
 
 if __name__ == "__main__":
@@ -154,8 +158,8 @@ if __name__ == "__main__":
             PSTH_falling = np.hstack((PSTH_falling, PSTH[stop_index-1:]))
 
     print "==================================="
-    f_sp, tau_rise, epsilon, alpha, K, delay, tau_fall, beta = optimize_parameters()
-    print "f_sp = {0}\ntau_rise = {1}\nepsilon = {2}\nalpha = {3}\nK = {4}\ndelay = {5}\ntau_fall = {6}\nbeta = {7}".format(f_sp, tau_rise, epsilon, alpha, K, delay, tau_fall, beta)
+    f_sp, tau_rise, alpha, K, delay, tau_fall, mu = optimize_parameters()
+    print "f_sp = {0}\ntau_rise = {1}\nalpha = {2}\nK = {3}\ndelay = {4}\ntau_fall = {5}\nmu = {6}\n".format(f_sp, tau_rise, alpha, K, delay, tau_fall, mu)
 
     save_parameters()
 

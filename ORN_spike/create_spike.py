@@ -86,7 +86,7 @@ def draw_fitted_curve(dose):
 
 if __name__ == "__main__":
     dose = 10000
-    duration = 1
+    duration = 0.2
 
     length = 20
     start = 5
