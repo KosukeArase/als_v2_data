@@ -7,12 +7,12 @@ INPUT: PSTH data, dose
 OUTPUT: parameters
 
 Hint:
-The INPUT is 2d data (PSTH and dose), so this program execute 3d fitting.
+The INPUT is matrix (PSTH , duration and dose), so this program execute 3d fitting.
 In order to realize 3d fitting, the INPUT is formed as below:
-input = [[spike, spike, spike, ...], [dose, dose, dose, ...]]
+input = [[spike, spike, spike, ...], [dose, dose, dose, ...], [duration, duration, duration, ...]]
 
 Caution!
-BIN must be the same value.
+BIN must be the same value through the input data.
 
 USAGE
 $ python fit_PSTH.py [data_dir]

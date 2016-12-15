@@ -47,7 +47,7 @@ def read_data(path):
                 stimuli_start = data[i]
                 start_index = i
                 flag = 1
-            if flag == 1 and stimuli_start < data[i-2] < stimuli_start + 0.4 and i >= 2 and data[i] - data[i-2] < threshold:
+            if flag == 1 and stimuli_start < data[i-2] < stimuli_start + 0.4 and i >= 2 and data[i] - data[i-2] < threshold: # is the beginning of spike burst?
                 start = data[i-2]
                 start_index = i
                 flag = 2

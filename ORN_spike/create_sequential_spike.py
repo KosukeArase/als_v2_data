@@ -4,7 +4,7 @@
 This program creates spike.
 
 INPUT: length, start, duration, dose, parameter
-OUTPUT: spiketiming
+OUTPUT: spiketiming [dose(ms)]
 
 USAGE
 $ python create_spike.py
@@ -37,8 +37,10 @@ def load_parameters():
     return map(float, [f_sp, tau_rise, alpha, K, tau_fall, mu])
 
 
-def save_spiketiming():
-    output_file = "spiketiming/{0}ng_{1}ms.txt".format(dose, int(duration*1000))
+def save_spiketiming(i):
+    output_file = "%sspt%03d.dat" % (target_dir, i)
+    spike = np.random.poisson(lam=f_connected*dt)
+    spiketiming = time[0][spike != 0]
     with open(output_file, "w") as f:
         for spike in spiketiming:
             f.write("{0}\n".format(spike + start))
@@ -77,29 +79,59 @@ def draw_fitted_curve(dose):
 
 
 if __name__ == "__main__":
-    dose = 5000
-    duration = 1
-
-    length = 20
-    start = 5
+    dose = int(sys.argv[1])
     parameter_file_index = 1 # 1000ms
+
+    length = 9.1
+    start = 0.1
+    duration = 0.1
+    interval = 0.2
+    spike_times = 30
+
     dt = 0.000025 # 0.025ms
     # dt = 0.1
 
     f_sp, tau_rise, alpha, K, tau_fall, mu = load_parameters()
 
-    print "f_sp = {0}\ntau_rise = {1}\nalpha = {2}\nK = {3}\ntau_fall = {4}\nmu = {5}".format(f_sp, tau_rise, alpha, K, tau_fall, mu)
 
+    """
+    とりあえず時定数を10で割ってそれっぽくしてみようの会
+    """
+    tau_rise /= 4
+    tau_fall /= 10
+    """
+    ここは後でなんとかしよう
+    """
+
+    print "f_sp = {0}\ntau_rise = {1}\nalpha = {2}\nK = {3}\ntau_fall = {4}\nmu = {5}".format(f_sp, tau_rise, alpha, K, tau_fall, mu)
 
     time = np.vstack((dt*np.arange(int(length/dt))-start, dose*np.ones(int(length/dt)), duration*np.ones(int(length/dt))))
 
-    left = int(start/dt)
-    right = int((start+duration)/dt)
+    left = int(duration/dt)
+    right = int((duration+interval)/dt)
 
 
-    time_before = time[:,:left]
-    time_rising = time[:,left:right]
-    time_falling = time[:,right:]
+    time_before = time[:,:int(start/dt)]
+
+    # time_rising[1,:] = dose * np.ones(len(time_rising[1,:]))
+    # time_falling[1,:] = dose * np.ones(len(time_falling[1,:]))
+    f_before = f_sp * np.ones(len(time_before[0])-1)
+    f_connected = f_before
+
+    for i in xrange(spike_times):
+        offset = 0#int((start+(duration+interval)*i)/dt)
+        time_rising = time[:,offset:offset+left]
+        time_falling = time[:,offset+left:offset+right]
+        f_rise = rising_spike(time_rising, tau_rise, alpha, K, mu)
+        f_fall = falling_spike(time_falling, tau_fall)
+        print f_fall
+        f_connected = np.hstack((f_connected, f_rise, f_fall))
+        print f_connected
+        print len(f_connected)
+
+    print len(time[0])
+    plt.plot(time[0], f_connected, "-", label=str(dose))
+
 
     """ spike 周りの拡大用
     time_before = time_before[:,-1000:]
@@ -107,22 +139,22 @@ if __name__ == "__main__":
     time = time[:,int(start/dt)-1000:int((start+duration)/dt)+1000]
     """
 
-    draw_fitted_curve(10000)
-    draw_fitted_curve(5000)
-    draw_fitted_curve(1000)
+    # draw_fitted_curve(10000)
+    # draw_fitted_curve(5000)
+    # draw_fitted_curve(1000)
 
-    plt.title("{0} ms".format(int(duration*1000)))
+    plt.title("{0} ms".format(dose))
     plt.xlabel("time")
     plt.ylabel("PSTH")
     plt.legend()
 
     plt.show()
 
-    f_before = f_sp * np.ones(len(time_before[0]))
+    # f_before = f_sp * np.ones(len(time_before[0]))
 
-    f_rise = rising_spike(time_rising, tau_rise, alpha, K, mu)
-    f_fall = falling_spike(time_falling, tau_fall)
-    f_connected = np.hstack((f_before, f_rise, f_fall))
+    # f_rise = rising_spike(time_rising, tau_rise, alpha, K, mu)
+    # f_fall = falling_spike(time_falling, tau_fall)
+    # f_connected = np.hstack((f_before, f_rise, f_fall))
     # print f_before[-5:]
     # print f_rise[:5]
     # print f_rise[-5:]
@@ -133,10 +165,11 @@ if __name__ == "__main__":
     # print np.average(f_rise)
     # print np.average(f_fall)
     # print np.average(f_connected)
+    num_spike_file = 1000
+    target_dir = "{0}dose_30stims/ORN/".format(dose)
 
-    spike = np.random.poisson(lam=f_connected*dt)
-
-    spiketiming = time[0][spike != 0]
-
-    # print spiketiming
-    save_spiketiming()
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+    for i in xrange(num_spike_file):
+        # print spiketiming
+        save_spiketiming(i)
