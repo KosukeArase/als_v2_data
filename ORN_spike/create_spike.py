@@ -37,13 +37,37 @@ def load_parameters():
     return map(float, [f_sp, tau_rise, alpha, K, tau_fall, mu])
 
 
-def save_spiketiming():
-    output_file = "spiketiming/{0}ng_{1}ms.txt".format(dose, int(duration*1000))
+def save_spiketiming(n):
+    # output_file = "spiketiming/{0}ng_{1}ms.txt".format(dose, int(duration*1000))
+    spike = np.random.poisson(lam=f_connected*dt)
+    spiketiming = time[0][spike != 0]
+    output_file = "%sspt%03d.dat" % (target_dir, i)
     with open(output_file, "w") as f:
         for spike in spiketiming:
             f.write("{0}\n".format(spike + start))
 
         f.write(str(len(spiketiming))+"\n")
+
+
+def raster(event_times_list, height, color='k'):
+    """
+    Creates a raster plot
+
+    Parameters
+    ----------
+    event_times_list : iterable
+                       a list of event time iterables
+    color : string
+            color of vlines
+    Returns
+    -------
+    ax : an axis containing the raster plot
+    """
+    ax = plt.gca()
+    for ith, trial in enumerate(event_times_list):
+        plt.vlines(trial, 0+height, 40+height, color=color)
+    # plt.ylim(.5, 2)
+    return ax
 
 
 def spontaneous(t, f_sp):
@@ -77,13 +101,13 @@ def draw_fitted_curve(dose):
 
 
 if __name__ == "__main__":
-    dose = 5000
+    dose = 3000
+    dt = 0.000025 # 0.025ms
     duration = 1
 
-    length = 20
-    start = 5
+    length = 10
+    start = dt
     parameter_file_index = 1 # 1000ms
-    dt = 0.000025 # 0.025ms
     # dt = 0.1
 
     f_sp, tau_rise, alpha, K, tau_fall, mu = load_parameters()
@@ -107,14 +131,34 @@ if __name__ == "__main__":
     time = time[:,int(start/dt)-1000:int((start+duration)/dt)+1000]
     """
 
-    draw_fitted_curve(10000)
-    draw_fitted_curve(5000)
-    draw_fitted_curve(1000)
+    # draw_fitted_curve(10000)
+    # draw_fitted_curve(5000)
+    draw_fitted_curve(3000)
 
-    plt.title("{0} ms".format(int(duration*1000)))
+    """raster"""
+    filename = "spiketiming/3000ng_1000ms.txt"
+
+    with open(filename, "r") as f:
+        lines = f.readlines()
+        lines = map(float, lines)
+        del lines[-1]
+
+        ax = raster(lines, 0)
+    filename = "../MRN_spike/spiketiming/spt000.dat"
+
+    with open(filename, "r") as f:
+        lines = f.readlines()
+        lines = map(float, lines)
+        del lines[-1]
+
+        ax = raster(lines, 70)
+        """raster"""
+
+    plt.title("{0} ms, {1} ng".format(int(duration*1000), dose))
     plt.xlabel("time")
     plt.ylabel("PSTH")
     plt.legend()
+    plt.rcParams["font.size"] = 15
 
     plt.show()
 
@@ -123,20 +167,14 @@ if __name__ == "__main__":
     f_rise = rising_spike(time_rising, tau_rise, alpha, K, mu)
     f_fall = falling_spike(time_falling, tau_fall)
     f_connected = np.hstack((f_before, f_rise, f_fall))
-    # print f_before[-5:]
-    # print f_rise[:5]
-    # print f_rise[-5:]
-    # print f_fall[:5]
-    # print f_fall[-5:]
 
-    # print np.average(f_before)
-    # print np.average(f_rise)
-    # print np.average(f_fall)
-    # print np.average(f_connected)
+    num_spike_file = 1000
+    target_dir = "{0}dose_1stim/".format(dose)
 
-    spike = np.random.poisson(lam=f_connected*dt)
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+    for i in xrange(num_spike_file):
+        # print spiketiming
+        save_spiketiming(i)
 
-    spiketiming = time[0][spike != 0]
 
-    # print spiketiming
-    save_spiketiming()

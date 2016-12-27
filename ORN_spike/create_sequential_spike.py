@@ -7,7 +7,7 @@ INPUT: length, start, duration, dose, parameter
 OUTPUT: spiketiming [dose(ms)]
 
 USAGE
-$ python create_spike.py
+$ python create_sequential_spike_of_ORN.py [dose]
 """
 
 
@@ -39,6 +39,8 @@ def load_parameters():
 
 def save_spiketiming(i):
     output_file = "%sspt%03d.dat" % (target_dir, i)
+    print output_file
+    print f_connected
     spike = np.random.poisson(lam=f_connected*dt)
     spiketiming = time[0][spike != 0]
     with open(output_file, "w") as f:
@@ -82,11 +84,11 @@ if __name__ == "__main__":
     dose = int(sys.argv[1])
     parameter_file_index = 1 # 1000ms
 
-    length = 9.1
-    start = 0.1
-    duration = 0.1
+    start = 1
+    duration = 1.1
     interval = 0.2
     spike_times = 30
+    length = start + (duration + interval) * spike_times
 
     dt = 0.000025 # 0.025ms
     # dt = 0.1
@@ -115,7 +117,7 @@ if __name__ == "__main__":
 
     # time_rising[1,:] = dose * np.ones(len(time_rising[1,:]))
     # time_falling[1,:] = dose * np.ones(len(time_falling[1,:]))
-    f_before = f_sp * np.ones(len(time_before[0])-1)
+    f_before = f_sp * np.ones(len(time_before[0]))
     f_connected = f_before
 
     for i in xrange(spike_times):
@@ -143,7 +145,7 @@ if __name__ == "__main__":
     # draw_fitted_curve(5000)
     # draw_fitted_curve(1000)
 
-    plt.title("{0} ms".format(dose))
+    plt.title("{0} ng".format(dose))
     plt.xlabel("time")
     plt.ylabel("PSTH")
     plt.legend()
@@ -165,8 +167,8 @@ if __name__ == "__main__":
     # print np.average(f_rise)
     # print np.average(f_fall)
     # print np.average(f_connected)
-    num_spike_file = 1000
-    target_dir = "{0}dose_30stims/ORN/".format(dose)
+    num_spike_file = 10#00
+    target_dir = "{0}dose_30stims/".format(dose)
 
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)

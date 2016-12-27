@@ -59,7 +59,7 @@ def save_parameters():
         f.write("f_sp = {0}\ntau_rise = {1}\nalpha = {2}\nK = {3}\ntau_fall = {4}\nmu = {5}".format(f_sp, tau_rise, alpha, K, tau_fall, mu))
 
 
-def draw_fitted_curve(dose):
+def draw_fitted_curve(dose, c):
     time_rising_200[1,:] = dose * np.ones(int(duration/bin)+1)
     time_falling_200[1,:] = dose * np.ones(right - (int(duration/bin)+1))
  
@@ -68,7 +68,7 @@ def draw_fitted_curve(dose):
     f_fall = falling_spike(time_falling_200, tau_fall)
     f_connected = np.hstack((f_before, f_rise, f_fall))
 
-    plt.plot(time, f_connected, "-", label=str(dose))
+    plt.plot(time, f_connected, "-", label=str(dose)+"ng_fitted_curve", color=c)
 
 
 def spontaneous(t, f_sp):
@@ -122,6 +122,7 @@ if __name__ == "__main__":
     files = glob.glob("{0}/*.txt".format(input_dir))
     print "{0} files was imported.".format(len(files))
     for file in files:
+        print file
         bin, num, start_index, duration, dose, PSTH, time_vec = read_data(file)
         stop_index = start_index + int(duration/bin) + 1
         dose_vec = np.ones(num) * dose
@@ -147,6 +148,16 @@ if __name__ == "__main__":
             # print PSTH[start_index:stop_index]
             PSTH_falling = np.hstack((PSTH_falling, PSTH[stop_index-1:]))
 
+        if file == "parsed_data/Park_1000ms/10000ng_10000.txt":
+            time_10000 = matrix[0]
+            PSTH_10000 = PSTH
+        elif file == "parsed_data/Park_1000ms/3000ng_3000.txt":
+            time_3000 = matrix[0]
+            PSTH_3000 = PSTH
+        elif file == "parsed_data/Park_1000ms/1000ng_1000.txt":
+            time_1000 = matrix[0]
+            PSTH_1000 = PSTH
+
     print "==================================="
     f_sp, tau_rise, alpha, K, tau_fall, mu = optimize_parameters()
     print "f_sp = {0}\ntau_rise = {1}\nalpha = {2}\nK = {3}\ntau_fall = {4}\nmu = {5}\n".format(f_sp, tau_rise, alpha, K, tau_fall, mu)
@@ -163,19 +174,24 @@ if __name__ == "__main__":
 
 
     """ dots """
-    time_connected = np.hstack((time_spontaneous, time_rising, time_falling))[0]
-    PSTH = np.hstack((PSTH_spontaneous, PSTH_rising, PSTH_falling))
-    plt.plot(time_connected, PSTH, "o")
+    # time_connected = np.hstack((time_spontaneous, time_rising, time_falling))[0]
+    # PSTH = np.hstack((PSTH_spontaneous, PSTH_rising, PSTH_falling))
+    plt.plot(time_1000, PSTH_1000, "v", color="blue", label="1000ng_PSTH")
+    plt.plot(time_3000, PSTH_3000, "o", color="red", label="3000ng_PSTH")
+    plt.plot(time_10000, PSTH_10000, "x", color="green", label="10000ng_PSTH")
 
     """ x axis for fitted curves """
     time = bin * np.arange(-left, right)
 
-    draw_fitted_curve(1000)
-    draw_fitted_curve(5000)
-    draw_fitted_curve(10000)
+    draw_fitted_curve(1000, "blue")
+    draw_fitted_curve(5000, "red")
+    draw_fitted_curve(10000, "green")
+    plt.rcParams["font.size"] = 15
 
     plt.title("{0} ms".format(duration * 1000))
     plt.xlabel("time")
+    plt.xlim(-5,10)
+    plt.ylim(0,160)
     plt.ylabel("PSTH")
     plt.legend()
     plt.show()

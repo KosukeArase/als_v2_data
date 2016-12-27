@@ -86,7 +86,6 @@ def calc_PSTH():
 
 if __name__ == "__main__":
     bin = 0.1
-    start = 6.0
     duration = 1.0
 
     target_dir = "../../parsed_data/Park_1000ms/"
