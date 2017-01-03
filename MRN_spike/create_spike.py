@@ -24,9 +24,9 @@ from scipy.optimize import curve_fit
 
 def save_spiketiming(i):
     if spike_times == 1:
-        target_dir = "{0}Hz_1stim/".format(frequency)
+        target_dir = "spiketiming/{0}Hz_1stim/".format(frequency)
     else:
-        target_dir = "{0}Hz_{1}stims/".format(frequency, spike_times)
+        target_dir = "spiketiming/{0}Hz_{1}stims/".format(frequency, spike_times)
     # target_dir = "unko_m/".format(frequency)
 
     if not os.path.exists(target_dir):
@@ -58,10 +58,10 @@ if __name__ == "__main__":
     start = 0
     duration = 1
     interval = 9
-    spike_times = 10
+    spike_times = 1
     length = start + (duration + interval) * spike_times
 
-    frequency = 40
+    frequency = 60
 
     n = int(length/dt)
     time = dt * np.arange(n)

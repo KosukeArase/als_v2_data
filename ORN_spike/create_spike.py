@@ -160,7 +160,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.rcParams["font.size"] = 15
 
-    plt.show()
+    # plt.show()
 
     f_before = f_sp * np.ones(len(time_before[0]))
 
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     f_connected = np.hstack((f_before, f_rise, f_fall))
 
     num_spike_file = 1000
-    target_dir = "{0}dose_1stim/".format(dose)
+    target_dir = "spiketiming/{0}ng_1stim/".format(dose)
 
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
