@@ -37,7 +37,7 @@ def save_spiketiming(i):
 
     with open(output_file, "w") as f:
         for spike in spiketiming:
-            f.write("{0}\n".format(spike-start))
+            f.write("{0}\n".format(spike))
 
         f.write(str(len(spiketiming))+"\n")
 

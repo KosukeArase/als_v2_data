@@ -47,7 +47,7 @@ def save_spiketiming(n):
     output_file = "%sspt%03d.dat" % (target_dir, i)
     with open(output_file, "w") as f:
         for j, spike in enumerate(spiketiming):
-            f.write("{0}\n".format(spike))# + start))
+            f.write("{0}\n".format(spike - t_left))
 
         f.write(str(len(spiketiming))+"\n")
 
@@ -57,6 +57,7 @@ def draw_fitted_curve(dose, color):
     dose_v = np.ones(1500) * dose
     dur_v = np.ones(1500) * duration
     mat = np.vstack((time_v, dose_v, dur_v))
+    mat[0,:] += t_left
 
     fitted_curve = optimize_parameters(mat, t_delay, tau_rise, tau_plateau, tau_fall, mu)
 
@@ -156,7 +157,6 @@ if __name__ == "__main__":
     mat = np.vstack((time_v, dose_v, dur_v))
 
     fitted_curve = optimize_parameters(mat, t_delay, tau_rise, tau_plateau, tau_fall, mu)
-
 
     """ save spiketiming"""
     num_spike_file = 1000
