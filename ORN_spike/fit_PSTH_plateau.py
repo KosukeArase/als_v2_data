@@ -80,7 +80,8 @@ def Michaelis_Menten(dose, alpha, K): # [dose] => freq
 
 def rise(data, tau_rise, alpha, K, t_start):
     f_peak = Michaelis_Menten(data[1], alpha, K)
-    return f_sp + f_peak * (2/(1+np.exp(-tau_rise*(data[0]-t_start)))-1) # sigmoid
+    # return f_sp + f_peak * (2/(1+np.exp(-tau_rise*(data[0]-t_start)))-1) # sigmoid
+    return f_sp + f_peak * np.exp(tau_rise*(data[0]-t_peak)) # exp
 
 
 def plateau(data, tau_plateau, mu):
@@ -196,6 +197,10 @@ if __name__ == "__main__":
     draw_fitted_curve(3000, "red")
     draw_fitted_curve(10000, "green")
     plt.rcParams["font.size"] = 15
+
+    """ stimulation timing"""
+    line_width = 5
+    plt.plot([0.0, 1.0], [158, 158], 'k-', lw=line_width)
 
     plt.title("{0} ms".format(duration * 1000))
     plt.xlabel("time")

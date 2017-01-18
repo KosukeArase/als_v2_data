@@ -95,7 +95,8 @@ def Michaelis_Menten(dose, alpha, K): # [dose] => freq
 
 def rise(data, tau_rise, alpha, K, t_start):
     f_peak = Michaelis_Menten(data[1], alpha, K)
-    return f_sp + f_peak * (2/(1+np.exp(-tau_rise*(data[0]-t_start)))-1) # sigmoid
+    # return f_sp + f_peak * (2/(1+np.exp(-tau_rise*(data[0]-t_start)))-1) # sigmoid
+    return f_sp + f_peak * np.exp(tau_rise*(data[0]-t_peak)) # exp
 
 
 def plateau(data, tau_plateau, mu):
@@ -143,11 +144,13 @@ if __name__ == "__main__":
     t_start = t_peak - bin # -0.1
 
     t_left = -0.5
-    t_right = 4.5
+    t_right = 9.5
+    # t_right = 4.5
 
     parameter_file_index = 1 # 1000ms
 
     alpha, K, t_delay, tau_rise, tau_plateau, tau_fall, mu, f_sp = load_parameters()
+    f_sp *= 2.
 
     print "alpha = {0}\nK = {1}\nt_delay = {2}\ntau_rise = {3}\ntau_plateau = {4}\ntau_fall = {5}\nmu = {6}\nf_sp = {7}".format(alpha, K, t_delay, tau_rise, tau_plateau, tau_fall, mu, f_sp)
 
@@ -157,6 +160,8 @@ if __name__ == "__main__":
     mat = np.vstack((time_v, dose_v, dur_v))
 
     fitted_curve = optimize_parameters(mat, t_delay, tau_rise, tau_plateau, tau_fall, mu)
+    # fitted_curve[:int(len(fitted_curve)/100)] = 100
+    # print fitted_curve[:10]
 
     """ save spiketiming"""
     num_spike_file = 1000

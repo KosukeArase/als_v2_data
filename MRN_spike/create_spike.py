@@ -61,7 +61,7 @@ if __name__ == "__main__":
     spike_times = 1
     length = start + (duration + interval) * spike_times
 
-    frequency = 30
+    frequency = 10
 
     n = int(length/dt)
     time = dt * np.arange(n)
