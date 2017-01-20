@@ -60,6 +60,8 @@ if __name__ == "__main__":
     interval = 3.5
     spike_times = 1
     length = start + (duration + interval) * spike_times
+    start_delay = 0.07
+    stop_delay = 0.05
 
     frequency = 10
 
@@ -71,7 +73,7 @@ if __name__ == "__main__":
         spike = np.random.poisson(lam=dt*frequency*np.ones(n))
         for j in xrange(spike_times):
             offset = int((start+(duration+interval)*j)/dt)
-            spike[offset:offset+int(duration/dt)] = 0
+            spike[offset-int(start_delay/dt):offset+int(duration/dt)-int(stop_delay/dt)] = 0
         spiketiming = time[spike != 0]
 
         save_spiketiming(i)

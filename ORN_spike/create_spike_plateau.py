@@ -189,7 +189,7 @@ if __name__ == "__main__":
         del lines[-1]
 
         ax = raster(lines, 0)
-    filename = "../MRN_spike/spiketiming_plateau/30Hz_1stim/spt000.dat"
+    filename = "./MRN_10Hz.dat"
 
     with open(filename, "r") as f:
         lines = f.readlines()
